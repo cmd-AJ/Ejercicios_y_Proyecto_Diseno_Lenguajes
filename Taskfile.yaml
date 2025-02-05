@@ -4,12 +4,13 @@ tasks:
   build:
     desc: Build the Go project
     cmds:
-      - go build -o bin/app ./...
+      - go build -o bin/main ./cmd/main.go
 
   run:
     desc: Run the Go project
+    deps: [build]
     cmds:
-      - go run .
+      - ./bin/main
 
   clean:
     desc: Clean the build artifacts
