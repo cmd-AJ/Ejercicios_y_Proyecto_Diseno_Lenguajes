@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/DanielRasho/Computation-Theory/internal/balancer"
+	"github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/balancer"
 	"github.com/golang-collections/collections/stack"
 )
 

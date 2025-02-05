@@ -1,0 +1,30 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the Go project
+    cmds:
+      - go build -o bin/app ./...
+
+  run:
+    desc: Run the Go project
+    cmds:
+      - go run .
+
+  clean:
+    desc: Clean the build artifacts
+    cmds:
+      - rm -rf bin/
+      - go clean -cache -modcache -testcache -i
+
+  test:
+    desc: Run tests, optionally filtering by pattern
+    cmds:
+      - |
+        if [ -n "{{.PATTERN}}" ]; then
+          go test -v -run "{{.PATTERN}}" ./...
+        else
+          go test -v ./...
+        fi
+    vars:
+      PATTERN: "{{.PATTERN | default \"\"}}"
