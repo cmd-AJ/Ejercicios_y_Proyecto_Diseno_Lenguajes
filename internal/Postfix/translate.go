@@ -198,7 +198,7 @@ func interchangeClasses(expresion []Symbol) []Symbol {
 	for i, r := range resultSlice {
 		finalExpression = append(finalExpression, Symbol{value: string(r), isOperator: false, precedence: 60})
 		if i < len(resultSlice)-1 { // Avoid adding "|" at the end
-			finalExpression = append(finalExpression, Symbol{value: "|", isOperator: true, precedence: 50})
+			finalExpression = append(finalExpression, OPERATORS["|"])
 		}
 	}
 	finalExpression = append(finalExpression, OPERATORS["("])
