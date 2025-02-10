@@ -93,3 +93,10 @@ func TestAddConcatenation(t *testing.T) {
 	expect := strings.Split("(a·b)?·a|m·+", "")
 	areSlicesEqual(t, answer, expect)
 }
+
+func TestShuntinYard(t *testing.T) {
+	symbols, _ := convertToSymbols("(a·b)*·a|m")
+	answer := shuntingyard(symbols, true)
+	expect := strings.Split("(a·b)?·a|m·+", "")
+	areSlicesEqual(t, answer, expect)
+}
