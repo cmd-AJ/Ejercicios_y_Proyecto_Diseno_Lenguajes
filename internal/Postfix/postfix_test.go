@@ -86,3 +86,10 @@ func TestTranslateToPrimitives(t *testing.T) {
 	expect := strings.Split("((ab)|ε)(1|2|3|M|N|O)(a((j)(j)*))", "")
 	areSlicesEqual(t, answer, expect)
 }
+
+func TestAddConcatenation(t *testing.T) {
+	symbols, _ := convertToSymbols("(ab)?a|m\\+")
+	answer, _ := addConcatenationSymbols(symbols)
+	expect := strings.Split("(a·b)?·a|m·+", "")
+	areSlicesEqual(t, answer, expect)
+}
