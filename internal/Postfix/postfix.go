@@ -6,6 +6,9 @@ import (
 	"github.com/golang-collections/collections/stack"
 )
 
+// Converts a regex string to a slice of symbols in postfix
+//
+// NOTE: Asummes the expresion is balanced in open-close symbols like "()", "[]"
 func RegexToPostfix(expresion string) (string, []Symbol, error) {
 
 	return "", nil, nil

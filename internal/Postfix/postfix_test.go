@@ -96,7 +96,26 @@ func TestAddConcatenation(t *testing.T) {
 
 func TestShuntinYard(t *testing.T) {
 	symbols, _ := convertToSymbols("(a·b)*·a|m")
-	answer := shuntingyard(symbols, true)
-	expect := strings.Split("(a·b)?·a|m·+", "")
+	answer := shuntingyard(symbols, false)
+	expect := strings.Split("ab·*a·m|", "")
 	areSlicesEqual(t, answer, expect)
+}
+
+func TestFormatLongRegex(t *testing.T) {
+	symbols, _ := convertToSymbols("(a|b?c+|d*e|fgh|i|j)")
+	response, _ := addConcatenationSymbols(symbols)
+	expect := strings.Split("(a|b?·c+|d*·e|f·g·h|i|j)", "")
+	areSlicesEqual(t, response, expect)
+}
+
+func TestPostfix(t *testing.T) {
+	_, response, _ := RegexToPostfix("([a-cA-C])+@([a-c])+.(com|org|net)?")
+	expect := strings.Split("AB|C|a|b|c|AB|C|a|b|c|*·@·ab|c|ab|c|*··.·co·m·or·g·|ne·t·|ε|·", "")
+	areSlicesEqual(t, response, expect)
+}
+
+func TestPostfix2(t *testing.T) {
+	_, response, _ := RegexToPostfix("(b+a)+")
+	expect := strings.Split("bb*·a·bb*·a·*·", "")
+	areSlicesEqual(t, response, expect)
 }
