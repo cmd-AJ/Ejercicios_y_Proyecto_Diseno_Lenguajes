@@ -5,6 +5,7 @@ import "strings"
 // This file contains logic specifically to manipulating a list of symbols
 // or strings
 
+// Convert a string to a list of symbols, supports escaped characters.
 func convertToSymbols(expresion string) ([]Symbol, error) {
 	tokens := strings.Split(expresion, "")
 	symbols := make([]Symbol, 0)
@@ -39,6 +40,7 @@ func convertToSymbols(expresion string) ([]Symbol, error) {
 	return symbols, nil
 }
 
+// Add concatenation symbol to an expresion.
 func addConcatenationSymbols(expresion []Symbol) ([]Symbol, error) {
 
 	formattedTokens := make([]Symbol, 0)
@@ -77,6 +79,8 @@ func addConcatenationSymbols(expresion []Symbol) ([]Symbol, error) {
 	return formattedTokens, nil
 }
 
+// Helper function to check that if given to symbols, a concatenation symbol
+// should be added in between.
 func shouldAddConcatenationSymbol(s1, s2 Symbol) bool {
 
 	if s2.value == "" {
@@ -90,10 +94,10 @@ func shouldAddConcatenationSymbol(s1, s2 Symbol) bool {
 		return false
 	}
 
-	// If the S1 is Operator and
-	// 	just and need more that 1 operands,
-	// 	is an open parenthesis
-	// 	nees less than and operand but the next character is an operator
+	// If the S1 is Operator :
+	// 	need more than 1 operands, or
+	// 	is an open parenthesis, or
+	// 	need less than one operand and the next character is an operator
 	if s1.isOperator {
 		if s1.operands > 1 ||
 			(s1.value == "(" && !s2.isOperator) ||
@@ -114,6 +118,7 @@ func shouldAddConcatenationSymbol(s1, s2 Symbol) bool {
 	return true
 }
 
+// Returns a token (string) from a given index. For invalid index return empty string and false.
 func getTokenInfo(symbols []string, index int) (s string, exist bool) {
 	if index >= len(symbols) {
 		s = ""
@@ -125,8 +130,9 @@ func getTokenInfo(symbols []string, index int) (s string, exist bool) {
 	return
 }
 
+// Returns a Symbol from a given index. For invalid index return empty Symbol and false.
 func getSymbolInfo(symbols []Symbol, index int) (s Symbol, exist bool) {
-	if index >= len(symbols) {
+	if index >= len(symbols) || index < 0 {
 		s = Symbol{}
 		exist = false
 		return
