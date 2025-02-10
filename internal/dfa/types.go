@@ -3,12 +3,12 @@ package dfa
 type Symbol = string
 
 type DFA struct {
-	startState State
+	StartState State
 	States     []State
 }
 
 type State struct {
-	id          string
+	Id          string
 	IsFinal     bool
 	Transitions map[Symbol]State
 }
