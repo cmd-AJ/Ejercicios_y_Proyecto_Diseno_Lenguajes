@@ -22,7 +22,7 @@ func convertToPrimitiveOperators(expresion []Symbol) []Symbol {
 		}
 
 		// INTERCHANGE OPTIONAL
-		if s1.isOperator && s1.value == "?" {
+		if s1.IsOperator && s1.Value == "?" {
 			start, end := getSubExpresionIndex(expresion, i-1, "(", ")")
 			subExpresion := interchangeOptional(expresion[start:end])
 			formattedSymbols = append(formattedSymbols, subExpresion...)
@@ -30,7 +30,7 @@ func convertToPrimitiveOperators(expresion []Symbol) []Symbol {
 			i -= (end - start) + 1
 			continue
 			// INTERCHANGE POSITIVE LOCK
-		} else if s1.isOperator && s1.value == "+" {
+		} else if s1.IsOperator && s1.Value == "+" {
 			start, end := getSubExpresionIndex(expresion, i-1, "(", ")")
 			subExpresion := interchangePositiveLock(expresion[start:end])
 			formattedSymbols = append(formattedSymbols, subExpresion...)
@@ -38,7 +38,7 @@ func convertToPrimitiveOperators(expresion []Symbol) []Symbol {
 			i -= (end - start) + 1
 			continue
 			// INTERCHANGE CLASSES
-		} else if s1.isOperator && s1.value == "]" {
+		} else if s1.IsOperator && s1.Value == "]" {
 			start, end := getSubExpresionIndex(expresion, i, "[", "]")
 			subExpresion := interchangeClasses(expresion[start+1 : end-1]) // Pass without brackets
 			formattedSymbols = append(formattedSymbols, subExpresion...)
@@ -73,10 +73,10 @@ func getSubExpresionIndex(
 
 	for ; i >= 0; i-- {
 		symbol := expresion[i]
-		if symbol.isOperator {
-			if symbol.value == endSymbol {
+		if symbol.IsOperator {
+			if symbol.Value == endSymbol {
 				parenthesis++
-			} else if symbol.value == startSymbol {
+			} else if symbol.Value == startSymbol {
 				parenthesis--
 			}
 		}
@@ -105,7 +105,7 @@ func interchangeOptional(expresion []Symbol) []Symbol {
 	}
 
 	formattedSymbols = append(formattedSymbols, OPERATORS[")"])
-	formattedSymbols = append(formattedSymbols, Symbol{value: "ε", isOperator: false, precedence: 60})
+	formattedSymbols = append(formattedSymbols, Symbol{Value: "ε", IsOperator: false, Precedence: 60})
 	formattedSymbols = append(formattedSymbols, OPERATORS["|"])
 	formattedSymbols = append(formattedSymbols, OPERATORS[")"])
 	formattedSymbols = append(formattedSymbols, subExpresion...)
@@ -162,16 +162,16 @@ func interchangeClasses(expresion []Symbol) []Symbol {
 		s3, s3Exist := getSymbolInfo(expresion, i+2)
 
 		// SUPPORT ESCAPED SYMBOLS
-		if s1.value == ESCAPE_SYMBOL && s2Exist {
-			r := []rune(s2.value)[0]
+		if s1.Value == ESCAPE_SYMBOL && s2Exist {
+			r := []rune(s2.Value)[0]
 			resultSet[r] = struct{}{}
 			i += 2
 			continue
 			// SUPPORT RANGES EXPRESIONS
-		} else if s2Exist && s3Exist && s2.value == "-" {
+		} else if s2Exist && s3Exist && s2.Value == "-" {
 			// Handle range expansion
-			start := []rune(s1.value)[0]
-			end := []rune(s3.value)[0]
+			start := []rune(s1.Value)[0]
+			end := []rune(s3.Value)[0]
 			for _, r := range expandRange(start, end) {
 				resultSet[r] = struct{}{}
 			}
@@ -180,7 +180,7 @@ func interchangeClasses(expresion []Symbol) []Symbol {
 		}
 
 		// SUPPORT SINGLE SYMBOLS
-		r := []rune(expresion[i].value)[0]
+		r := []rune(expresion[i].Value)[0]
 		resultSet[r] = struct{}{}
 		i++
 	}
@@ -196,7 +196,7 @@ func interchangeClasses(expresion []Symbol) []Symbol {
 	var finalExpression []Symbol
 	finalExpression = append(finalExpression, OPERATORS[")"])
 	for i, r := range resultSlice {
-		finalExpression = append(finalExpression, Symbol{value: string(r), isOperator: false, precedence: 60})
+		finalExpression = append(finalExpression, Symbol{Value: string(r), IsOperator: false, Precedence: 60})
 		if i < len(resultSlice)-1 { // Avoid adding "|" at the end
 			finalExpression = append(finalExpression, OPERATORS["|"])
 		}

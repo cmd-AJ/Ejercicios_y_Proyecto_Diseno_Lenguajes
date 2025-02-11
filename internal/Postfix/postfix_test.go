@@ -9,7 +9,7 @@ import (
 func areSlicesEqual(t *testing.T, response []Symbol, expect []string) {
 	value := ""
 	for _, v := range response {
-		value += v.value
+		value += v.Value
 	}
 
 	if len(response) < len(expect) {
@@ -18,7 +18,7 @@ func areSlicesEqual(t *testing.T, response []Symbol, expect []string) {
 		t.Fatalf("Response has more characters than expected. Has %d, %d given. %s", len(response), len(expect), value)
 	}
 	for i, expected := range expect {
-		if response[i].value != expected {
+		if response[i].Value != expected {
 			t.Fatalf("Characters not match, Given string %s", value)
 		}
 	}
@@ -26,10 +26,10 @@ func areSlicesEqual(t *testing.T, response []Symbol, expect []string) {
 
 func TestEscapedSymbols(t *testing.T) {
 	symbol, _ := convertToSymbols("\\+")
-	expect := Symbol{value: "+", isOperator: false, precedence: 60}
+	expect := Symbol{Value: "+", IsOperator: false, Precedence: 60}
 
 	if symbol[0] != expect {
-		t.Fatalf("Symbols %s was not ESCAPED.", (&symbol[0]).value)
+		t.Fatalf("Symbols %s was not ESCAPED.", (&symbol[0]).Value)
 	}
 }
 func TestFindSubExpresionIndex(t *testing.T) {
@@ -43,7 +43,7 @@ func TestClassInterchangeClasses(t *testing.T) {
 	answer := interchangeClasses(symbols)
 	var sb strings.Builder
 	for _, a := range answer {
-		sb.WriteString(a.value)
+		sb.WriteString(a.Value)
 	}
 	t.Logf(sb.String())
 }
@@ -53,7 +53,7 @@ func TestClassInterchangeClassesEscaped(t *testing.T) {
 	answer := interchangeClasses(symbols)
 	var sb strings.Builder
 	for _, a := range answer {
-		sb.WriteString(a.value)
+		sb.WriteString(a.Value)
 	}
 	t.Logf(sb.String())
 }
@@ -96,7 +96,7 @@ func TestAddConcatenation(t *testing.T) {
 
 func TestShuntinYard(t *testing.T) {
 	symbols, _ := convertToSymbols("(a·b)*·a|m")
-	answer := shuntingyard(symbols, false)
+	answer := shuntingyard(symbols)
 	expect := strings.Split("ab·*a·m|", "")
 	areSlicesEqual(t, answer, expect)
 }

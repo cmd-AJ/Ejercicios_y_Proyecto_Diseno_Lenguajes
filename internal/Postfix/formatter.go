@@ -17,9 +17,9 @@ func convertToSymbols(expresion string) ([]Symbol, error) {
 		if t1 == ESCAPE_SYMBOL {
 			if t2Exist {
 				symbols = append(symbols, Symbol{
-					value:      t2,
-					precedence: 60,
-					isOperator: false})
+					Value:      t2,
+					Precedence: 60,
+					IsOperator: false})
 
 				i += 2
 				continue
@@ -29,9 +29,9 @@ func convertToSymbols(expresion string) ([]Symbol, error) {
 			symbols = append(symbols, operator)
 		} else {
 			symbols = append(symbols, Symbol{
-				value:      t1,
-				precedence: 60,
-				isOperator: false,
+				Value:      t1,
+				Precedence: 60,
+				IsOperator: false,
 			})
 		}
 		i++
@@ -50,13 +50,13 @@ func addConcatenationSymbols(expresion []Symbol) ([]Symbol, error) {
 		s2, s2Exist := getSymbolInfo(expresion, i+1)
 
 		// SPECIAL CASE, if Class sctructure encontared skip([abc])
-		if s1.value == "[" && s1.isOperator {
+		if s1.Value == "[" && s1.IsOperator {
 			newIndex := i
 			// Search for the closing class bracket "]"
 			for ; newIndex < len(expresion); newIndex++ {
 				step, _ := getSymbolInfo(expresion, newIndex)
 
-				if step.value == "]" && step.isOperator {
+				if step.Value == "]" && step.IsOperator {
 					break
 				}
 
@@ -83,14 +83,14 @@ func addConcatenationSymbols(expresion []Symbol) ([]Symbol, error) {
 // should be added in between.
 func shouldAddConcatenationSymbol(s1, s2 Symbol) bool {
 
-	if s2.value == "" {
+	if s2.Value == "" {
 		return false
 	}
 
 	// If both are open or close parenthesis, false
-	if (s1.isOperator && s2.isOperator) &&
-		((s1.value == "(" && s2.value == "(") ||
-			(s1.value == ")" && s2.value == ")")) {
+	if (s1.IsOperator && s2.IsOperator) &&
+		((s1.Value == "(" && s2.Value == "(") ||
+			(s1.Value == ")" && s2.Value == ")")) {
 		return false
 	}
 
@@ -98,20 +98,20 @@ func shouldAddConcatenationSymbol(s1, s2 Symbol) bool {
 	// 	need more than 1 operands, or
 	// 	is an open parenthesis, or
 	// 	need less than one operand and the next character is an operator
-	if s1.isOperator {
-		if s1.operands > 1 ||
-			(s1.value == "(" && !s2.isOperator) ||
-			(s1.operands < 1 && s2.isOperator) {
+	if s1.IsOperator {
+		if s1.Operands > 1 ||
+			(s1.Value == "(" && !s2.IsOperator) ||
+			(s1.Operands < 1 && s2.IsOperator) {
 			return false
 		}
 	}
 	// 	If S2 is an "(" operator
-	if s2.isOperator &&
-		((s2.value == "(") ||
-			(s2.value == "[")) {
+	if s2.IsOperator &&
+		((s2.Value == "(") ||
+			(s2.Value == "[")) {
 		return true
 	}
-	if s2.isOperator { // If c1 is not operand then
+	if s2.IsOperator { // If c1 is not operand then
 		return false
 	}
 

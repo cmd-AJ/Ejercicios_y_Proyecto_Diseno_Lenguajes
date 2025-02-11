@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/golang-collections/collections/stack"
+	"github.com/rs/zerolog/log"
 )
 
 // Converts a regex string to a slice of symbols in postfix
@@ -27,27 +28,27 @@ func RegexToPostfix(tokens string) (string, []Symbol, error) {
 	}
 
 	// Reorder expresion in postfix notation
-	postfixSymbols := shuntingyard(expresionPrepared, false)
+	postfixSymbols := shuntingyard(expresionPrepared)
 	var sb strings.Builder
 	for _, token := range postfixSymbols {
-		sb.WriteString(token.value)
+		sb.WriteString(token.Value)
 	}
 
 	return sb.String(), postfixSymbols, nil
 }
 
-func shuntingyard(tokens []Symbol, showLogs bool) []Symbol {
+func shuntingyard(tokens []Symbol) []Symbol {
 	postfix := make([]Symbol, 0)
 	stack := stack.New()
 
 	for i, token := range tokens {
-		if token.value == "(" && token.isOperator {
+		if token.Value == "(" && token.IsOperator {
 			stack.Push(token)
-		} else if token.value == ")" && token.isOperator {
+		} else if token.Value == ")" && token.IsOperator {
 			for {
 				tokenValue, _ := stack.Peek().(Symbol)
 
-				if tokenValue.value == "(" && token.isOperator {
+				if tokenValue.Value == "(" && token.IsOperator {
 					break
 				}
 
@@ -58,7 +59,7 @@ func shuntingyard(tokens []Symbol, showLogs bool) []Symbol {
 			for stack.Len() > 0 {
 				peekedChar := stack.Peek().(Symbol)
 
-				if peekedChar.precedence >= token.precedence {
+				if peekedChar.Precedence >= token.Precedence {
 					postfix = append(postfix, stack.Pop().(Symbol))
 				} else {
 					break
@@ -67,11 +68,9 @@ func shuntingyard(tokens []Symbol, showLogs bool) []Symbol {
 			stack.Push(token)
 		}
 
-		if showLogs {
-			fmt.Printf("\t=== STEP %d ====\n", i)
-			fmt.Printf("\t\tStack: %+v \n", (tokens)[0:i+1])
-			fmt.Printf("\t\tResponse: %+v \n", postfix)
-		}
+		log.Debug().Msg(fmt.Sprintf("\t=== STEP %d ====\n", i))
+		log.Debug().Msg(fmt.Sprintf("\t\tStack: %+v \n", (tokens)[0:i+1]))
+		log.Debug().Msg(fmt.Sprintf("\t\tResponse: %+v \n", postfix))
 	}
 
 	for stack.Len() > 0 {
