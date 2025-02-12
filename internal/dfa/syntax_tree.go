@@ -46,7 +46,7 @@ func BuildAST(postfixSymbols []postfix.Symbol) Node {
 			}
 			// Crear un nodo operador con los operandos
 			node := Node{
-				Id:         i,
+				Id:         -i,
 				Value:      symbol.Value,
 				Operands:   symbol.Operands,
 				Children:   operands,
