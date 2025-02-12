@@ -18,7 +18,7 @@ func intSliceToString(slice []int) string {
 	return strings.Join(strs, ", ")
 }
 
-func printPosishTable(table map[int]posishTableRow) {
+func printPositionTable(table map[int]positionTableRow) {
 	fmt.Printf("%-5s %-10s %-8s %-8s %-15s %-15s %-15s\n",
 		"Key", "Token", "Nullable", "IsFinal", "FirstPos", "LastPos", "FollowPos")
 	fmt.Println(strings.Repeat("-", 80))
@@ -37,9 +37,24 @@ func TestPositionTable(t *testing.T) {
 
 	ast := BuildAST(postfix)
 
-	table := make(map[int]posishTableRow, 0)
+	table := make(map[int]positionTableRow, 0)
 
 	getNodePosition(&ast, table)
 
-	printPosishTable(table)
+	printPositionTable(table)
+}
+
+func TestPositionTableAndFollowPost(t *testing.T) {
+	utils.ConfigureLogger()
+	regex := "(a|b)*abb#"
+	_, postfix, _ := postfix.RegexToPostfix(regex)
+
+	ast := BuildAST(postfix)
+
+	table := make(map[int]positionTableRow, 0)
+
+	getNodePosition(&ast, table)
+	setFollowPos(&ast, table)
+
+	printPositionTable(table)
 }
