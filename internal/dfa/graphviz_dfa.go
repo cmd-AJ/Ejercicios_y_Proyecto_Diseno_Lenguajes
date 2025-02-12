@@ -29,12 +29,12 @@ func GenerateDOT_DFA(dfa *DFA) string {
 		sb.WriteString(fmt.Sprintf("    \"%s\" [shape=%s];\n", state.Id, shape))
 
 		// Define the transitions
-		for _, state := range dfa.States {
-			for symbol, toState := range state.Transitions {
-				sb.WriteString(fmt.Sprintf("    \"%s\" -> \"%s\" [label=\"%s\"];\n",
-					state.Id, toState.Id, symbol))
-			}
+
+		for symbol, toState := range state.Transitions {
+			sb.WriteString(fmt.Sprintf("    \"%s\" -> \"%s\" [label=\"%s\"];\n",
+				state.Id, toState.Id, symbol))
 		}
+
 	}
 
 	// Define the start state

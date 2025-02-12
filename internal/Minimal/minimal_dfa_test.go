@@ -4,6 +4,8 @@ package Minimal
 
 import (
 	"testing"
+
+	dfa "github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/dfa"
 )
 
 func Test_Check_repeat(t *testing.T) {
@@ -53,6 +55,34 @@ func Test_Check_repeat(t *testing.T) {
 		}
 		println()
 	}
+}
+
+func initialize_simpleDFA() dfa.DFA {
+
+	q0 := dfa.State{
+		Id:          "q0",
+		IsFinal:     false,
+		Transitions: make(map[Symbol]dfa.State),
+	}
+
+	q1 := dfa.State{
+		Id:          "q1",
+		IsFinal:     true,
+		Transitions: make(map[Symbol]dfa.State),
+	}
+
+	// Define transitions
+	q0.Transitions["a"] = q1
+	q1.Transitions["b"] = q0
+
+	// Create DFA
+	dfa := dfa.DFA{
+		StartState: q0,
+		States:     []dfa.State{q0, q1},
+	}
+
+	return dfa
+
 }
 
 func Initialize_Tabla_Prueba1() Table {
