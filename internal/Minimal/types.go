@@ -7,6 +7,7 @@ type Table struct {
 	y_index  []string
 	x_index  []string
 	finals   map[string]bool
+	Initial  string
 }
 
 type Tuple struct {

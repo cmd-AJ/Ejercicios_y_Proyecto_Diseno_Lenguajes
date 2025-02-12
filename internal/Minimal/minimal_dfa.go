@@ -1,6 +1,8 @@
 package Minimal
 
 import (
+	"fmt"
+
 	"github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/dfa"
 )
 
@@ -17,6 +19,75 @@ func Replacex_index(outerKey string, innerkey string, tabla Table) {
 			tabla.x_index[i] = (innerkey + outerKey)
 		}
 	}
+}
+
+// Al momento de conseguir un pdf se pasa todos los valores a una tabla donde tenemos:
+// Tabla nxn: A donde se dirige el estado
+// y_index: Las lista de transiciones
+// x_index: Los estados que tienen
+//Finals: verificar si es un estado estado final o no
+
+func Initialize_Tabla_a_ADF(ADF dfa.DFA) Table {
+
+	lista := [][]string{}
+	yy_index := make(map[string]bool)
+	states := make(map[string]bool)
+	xx_index_list := []string{}
+	yy_index_list := []string{}
+
+	var provisional_list []string
+	lista = append(lista, []string{})
+	for symbol, state := range ADF.StartState.Transitions {
+		provisional_list = append(provisional_list, state.Id)
+		yy_index[symbol] = true
+
+	}
+	lista[0] = append(lista[0], provisional_list...)
+
+	if ADF.StartState.IsFinal {
+		states[ADF.StartState.Id] = true
+	} else {
+		states[ADF.StartState.Id] = false
+	}
+
+	for _, state := range ADF.States {
+
+		// OJO En el caso de que nuestro algoritmo
+		if state.Id != ADF.StartState.Id {
+
+			provisional_list = []string{}
+			for symbol, state := range state.Transitions {
+				provisional_list = append(provisional_list, state.Id)
+				yy_index[symbol] = true
+				if state.IsFinal {
+					states[state.Id] = true
+				} else {
+					states[state.Id] = false
+				}
+
+			}
+
+			lista = append(lista, provisional_list)
+		}
+
+	}
+
+	for Index := range yy_index {
+		yy_index_list = append(yy_index_list, Index)
+	}
+	for Index := range states {
+		xx_index_list = append(yy_index_list, Index)
+	}
+
+	fmt.Println(states)
+
+	return Table{
+		Table_2D: lista,
+		x_index:  xx_index_list,
+		y_index:  yy_index_list,
+		finals:   states,
+	}
+
 }
 
 func Lista_a_marcar_antes_finals(mappings map[string]map[string]bool) []Tuple {
@@ -106,3 +177,5 @@ func Initilize_table(table Table) map[string]map[string]bool {
 
 	return tabla
 }
+
+//Hacer otra funcion para revisar si en la minimizacion se cambio el estado inicial

@@ -28,8 +28,10 @@ func initialize_simpleDFA() DFA {
 	}
 
 	// Define transitions
+	q0.Transitions["a"] = q0
 	q0.Transitions["a"] = q1
-	q1.Transitions["b"] = q0
+	q1.Transitions["b"] = q1
+	q1.Transitions["a"] = q1
 
 	// Create DFA
 	dfa := DFA{

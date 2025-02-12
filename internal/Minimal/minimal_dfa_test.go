@@ -72,8 +72,10 @@ func initialize_simpleDFA() dfa.DFA {
 	}
 
 	// Define transitions
-	q0.Transitions["a"] = q1
-	q1.Transitions["b"] = q0
+	q0.Transitions["a"] = q0
+	q0.Transitions["b"] = q1
+	q1.Transitions["b"] = q1
+	q1.Transitions["a"] = q1
 
 	// Create DFA
 	dfa := dfa.DFA{
@@ -83,6 +85,18 @@ func initialize_simpleDFA() dfa.DFA {
 
 	return dfa
 
+}
+
+// Se inicializa la tabla y se revisa si el mapa tiene un estado y verificar si ese estado es final
+func Test_check_DFA(t *testing.T) {
+
+	k := initialize_simpleDFA()
+
+	s := Initialize_Tabla_a_ADF(k)
+
+	if s.finals["q1"] != true {
+		t.Errorf("Expected %v, but got %v", s.finals["q1"], "false")
+	}
 }
 
 func Initialize_Tabla_Prueba1() Table {
