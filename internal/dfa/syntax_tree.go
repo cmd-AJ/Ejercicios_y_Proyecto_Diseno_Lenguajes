@@ -23,6 +23,7 @@ func BuildAST(postfixSymbols []postfix.Symbol) Node {
 	// Recorrer toda la lista de símbolos en notación postfix
 	for i, symbol := range postfixSymbols {
 
+		// fmt.Printf("Value: %s isOperator %v numOperators: %d \n", symbol.Value, symbol.IsOperator, symbol.Operands)
 		// Verifica si el símbolo es un operador
 		if symbol.IsOperator {
 
@@ -48,16 +49,25 @@ func BuildAST(postfixSymbols []postfix.Symbol) Node {
 				Id:         i,
 				Value:      symbol.Value,
 				Operands:   symbol.Operands,
+				Children:   operands,
 				IsOperator: true}
 			stack = append(stack, node)
 
 		} else {
 			// Si no es un operador, es un carácter (Symbol) y se añade al stack
-			node := Node{
-				Id:         i,
-				Value:      symbol.Value,
-				IsOperator: false}
-			stack = append(stack, node)
+			if symbol.Value == "ε" {
+				node := Node{
+					Id:         -1, // stands for leaf that must not be taken into account
+					Value:      symbol.Value,
+					IsOperator: false}
+				stack = append(stack, node)
+			} else {
+				node := Node{
+					Id:         i,
+					Value:      symbol.Value,
+					IsOperator: false}
+				stack = append(stack, node)
+			}
 		}
 	}
 

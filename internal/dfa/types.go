@@ -1,5 +1,9 @@
 package dfa
 
+import (
+	"fmt"
+)
+
 // =====================
 //	  DFA
 // =====================
@@ -23,7 +27,8 @@ type State struct {
 
 // Definition of a tree node
 type Node struct {
-	Id int
+	Id       int
+	Nullable bool
 	// Character itself this node represents
 	Value string
 	// If this character is an operator or node.
@@ -35,4 +40,23 @@ type Node struct {
 	// Reserved for centinel character that marks the end of the parsing.
 	// Just one node in the entire tree can have it.
 	IsFinal bool
+}
+
+func (n Node) String() string {
+	return n.stringHelper(0)
+}
+
+func (n Node) stringHelper(depth int) string {
+	tabs := ""
+	for i := 0; i < depth; i++ {
+		tabs += "\t"
+	}
+
+	result := fmt.Sprintf("%s%s\n", tabs, n.Value)
+
+	for _, child := range n.Children {
+		result += child.stringHelper(depth + 1)
+	}
+
+	return result
 }
