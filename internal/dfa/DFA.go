@@ -1,6 +1,8 @@
 package dfa
 
 import (
+	"fmt"
+
 	postfix "github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/Postfix"
 )
 
@@ -39,11 +41,55 @@ func BuildFromPostfix(expresion []postfix.Symbol) *DFA {
 		Children:   []Node{tree, centinelNode},
 		IsOperator: true}
 
+	tokens := findFinalSymbols(expresion)
 	positionTable := make(map[int]positionTableRow, 0)
-	getNodePosition(&rootNode, positionTable)
+	_, firstPost, _ := getNodePosition(&rootNode, positionTable)
 	setFollowPos(&rootNode, positionTable)
 
-	return nil
+	intermidiateStates := simplifyStates(tokens, firstPost, positionTable)
+	printPositionTable(positionTable)
+	printStateSetTable(intermidiateStates, tokens)
+
+	dfa := convertToDFA(intermidiateStates, tokens)
+
+	return dfa
+}
+
+func convertToDFA(stateSets []*stateSet, transitionTokens []string) *DFA {
+	// Create a mapping from stateSet ID to State
+	stateMap := make(map[int]*State)
+
+	// Convert stateSets to States
+	for _, s := range stateSets {
+		stateMap[s.id] = &State{
+			Id:          fmt.Sprintf("%d", s.id), // Convert int ID to string
+			IsFinal:     s.isFinal,
+			Transitions: make(map[Symbol]State),
+		}
+	}
+
+	// Populate transitions
+	for _, s := range stateSets {
+		currentState := stateMap[s.id]
+		for _, token := range transitionTokens {
+			if nextStateSet, exists := s.transitions[token]; exists {
+				currentState.Transitions[Symbol(token)] = *stateMap[nextStateSet.id]
+			}
+		}
+	}
+
+	// Construct DFA
+	dfa := &DFA{
+		StartState: *stateMap[0], // Assuming state ID 0 is the start state
+		States:     make([]State, 0, len(stateMap)),
+	}
+
+	// Add all states to DFA
+	for _, state := range stateMap {
+		dfa.States = append(dfa.States, *state)
+	}
+
+	return dfa
 }
 
 func simplifyStates(
@@ -184,12 +230,14 @@ func getNodePosition(root *Node, positionTable map[int]positionTableRow) (bool, 
 	isNullable := false
 	firstPos := []int{root.Id}
 	lastPos := []int{root.Id}
+	isFinal := root.IsFinal
 
 	positionTable[root.Id] = positionTableRow{
 		token:    root.Value,
 		nullable: isNullable,
 		firstPos: firstPos,
 		lastPos:  lastPos,
+		isFinal:  isFinal,
 	}
 	// Then, this means is a leaf of a Final Symbol
 	return false, []int{root.Id}, []int{root.Id}
