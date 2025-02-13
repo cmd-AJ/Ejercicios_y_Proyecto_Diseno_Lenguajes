@@ -1,8 +1,6 @@
 package dfa
 
 import (
-	"fmt"
-
 	postfix "github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/Postfix"
 )
 
@@ -16,41 +14,142 @@ type positionTableRow struct {
 	followPos []int
 }
 
+type stateSet struct {
+	id          int
+	value       []int
+	transitions map[string]*stateSet
+	isFinal     bool
+}
+
 func BuildFromPostfix(expresion []postfix.Symbol) *DFA {
+
+	tree := BuildAST(expresion)
+	centinelNode := Node{
+		Id:         len(expresion),
+		Value:      "#",
+		Operands:   2,
+		Children:   []Node{tree},
+		IsOperator: false,
+		IsFinal:    true}
+
+	rootNode := Node{
+		Id:         -(len(expresion) + 1),
+		Value:      "·",
+		Operands:   2,
+		Children:   []Node{tree, centinelNode},
+		IsOperator: true}
+
+	positionTable := make(map[int]positionTableRow, 0)
+	getNodePosition(&rootNode, positionTable)
+	setFollowPos(&rootNode, positionTable)
 
 	return nil
 }
 
-func setFollowPos(root *Node, positionTable map[int]positionTableRow) {
-	// calculate follow post of children
-	if !root.IsOperator {
-		return
-	}
+func simplifyStates(
+	tokens []string,
+	initState []int,
+	positionTable map[int]positionTableRow) []*stateSet {
 
-	if root.Value == "·" {
-		c1 := positionTable[root.Children[0].Id]
-		c2 := positionTable[root.Children[1].Id]
-		fmt.Printf("NODE: %d\n", root.Id)
-		for _, n := range c1.lastPos {
-			node := positionTable[n]
-			fmt.Printf("\tC1: %d C2: %v\n", n, c2.firstPos)
-			node.followPos = getNumberSet(node.followPos, c2.firstPos)
-			positionTable[n] = node
+	inititialState := &stateSet{id: 0, value: initState, transitions: make(map[string]*stateSet)}
+	states := []*stateSet{inititialState}
+	queue := []*stateSet{inititialState}
+
+	for len(queue) > 0 {
+		currentState := queue[0] // Get a new element from queue
+		queue = queue[1:]        // Pop the element
+
+		// Get SET for each character
+		for _, token := range tokens {
+			newSet := getNewSetForToken(currentState.value, token, positionTable)
+			// fmt.Printf("ID: %d SET: %v TOKEN: %s \n", currentState.id, newSet.value, token)
+
+			setAlreadyExist, repeatedSet := setExists(&newSet, states)
+
+			// If set does not exist append it
+			if !setAlreadyExist {
+				// fmt.Printf("\tENTER: %v\n", newSet.value)
+				newSet.id = len(states)
+				currentState.transitions[token] = &newSet
+				queue = append(queue, &newSet)
+				states = append(states, &newSet)
+			} else {
+				currentState.transitions[token] = repeatedSet
+			}
+			// for _, r := range states {
+			// 	fmt.Printf("%v ", r.value)
+			// }
+			// fmt.Println("")
+		}
+		// fmt.Println("==================")
+	}
+	// fmt.Println("===================")
+	// for _, a := range states {
+	// 	fmt.Printf("ID: %d %v %v\n", a.id, a.value, a.transitions["b"])
+	// }
+
+	return states
+}
+
+func getNewSetForToken(items []int, token string, positionTable map[int]positionTableRow) stateSet {
+	setItems := make([]int, 0)
+
+	for _, i := range items {
+		row := positionTable[i]
+		if row.token == token {
+			setItems = append(setItems, row.followPos...)
 		}
 	}
 
-	if root.Value == "*" {
-		c := positionTable[root.Id]
-		for _, n := range c.lastPos {
-			node := positionTable[n]
-			node.followPos = getNumberSet(node.followPos, c.firstPos)
-			positionTable[n] = node
+	finalItems := removeDuplicates((setItems))
+	isFinal := false
+	for _, item := range finalItems {
+		if positionTable[item].isFinal {
+			isFinal = true
+			break
 		}
 	}
 
-	for _, child := range root.Children {
-		setFollowPos(&child, positionTable)
+	return stateSet{
+		value:       removeDuplicates(setItems), // fcalculate the UNION of followPos
+		isFinal:     isFinal,
+		transitions: make(map[string]*stateSet),
 	}
+}
+
+// Function to check if a stateSet exists in a list based on value comparison
+func setExists(newSet *stateSet, sets []*stateSet) (bool, *stateSet) {
+	for _, existingSet := range sets {
+		if slicesAreEqual(newSet.value, existingSet.value) {
+			return true, existingSet
+		}
+	}
+	return false, nil
+}
+
+// Helper function to check if two slices contain the same elements
+func slicesAreEqual(a, b []int) bool {
+	// fmt.Printf("\t %v %v \n", a, b)
+	if len(a) != len(b) {
+		return false
+	}
+
+	counts := make(map[int]int)
+
+	// Count occurrences in the first slice
+	for _, num := range a {
+		counts[num]++
+	}
+
+	// Check if second slice has the same elements
+	for _, num := range b {
+		if counts[num] == 0 {
+			return false
+		}
+		counts[num]--
+	}
+
+	return true
 }
 
 func getNodePosition(root *Node, positionTable map[int]positionTableRow) (bool, []int, []int) {
@@ -94,6 +193,37 @@ func getNodePosition(root *Node, positionTable map[int]positionTableRow) (bool, 
 	}
 	// Then, this means is a leaf of a Final Symbol
 	return false, []int{root.Id}, []int{root.Id}
+}
+
+func setFollowPos(root *Node, positionTable map[int]positionTableRow) {
+	// calculate follow post of children
+	if !root.IsOperator {
+		return
+	}
+
+	if root.Value == "·" {
+		c1 := positionTable[root.Children[0].Id]
+		c2 := positionTable[root.Children[1].Id]
+		for _, n := range c1.lastPos {
+			node := positionTable[n]
+			//fmt.Printf("\tC1: %d C2: %v\n", n, c2.firstPos)
+			node.followPos = getNumberSet(node.followPos, c2.firstPos)
+			positionTable[n] = node
+		}
+	}
+
+	if root.Value == "*" {
+		c := positionTable[root.Id]
+		for _, n := range c.lastPos {
+			node := positionTable[n]
+			node.followPos = getNumberSet(node.followPos, c.firstPos)
+			positionTable[n] = node
+		}
+	}
+
+	for _, child := range root.Children {
+		setFollowPos(&child, positionTable)
+	}
 }
 
 func positionKleenOperator(n *Node, positionTable map[int]positionTableRow) (bool, []int, []int) {
@@ -155,7 +285,7 @@ func positionConcatenationOperator(n *Node, positionTable map[int]positionTableR
 }
 
 // Return a list with all different final symbols (Not operators) from an expresion.
-func findFinalSymbols(expresion []postfix.Symbol) []postfix.Symbol {
+func findFinalSymbols(expresion []postfix.Symbol) []string {
 	symbolsSet := make(map[postfix.Symbol]bool)
 
 	for _, symbol := range expresion {
@@ -166,10 +296,10 @@ func findFinalSymbols(expresion []postfix.Symbol) []postfix.Symbol {
 		}
 	}
 
-	symbols := make([]postfix.Symbol, len(symbolsSet))
+	symbols := make([]string, 0)
 
 	for symbol := range symbolsSet {
-		symbols = append(symbols, symbol)
+		symbols = append(symbols, symbol.Value)
 	}
 
 	return symbols
