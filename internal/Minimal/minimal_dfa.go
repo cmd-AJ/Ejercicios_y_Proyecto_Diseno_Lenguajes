@@ -1,12 +1,10 @@
 package Minimal
 
 import (
-	"fmt"
-
 	"github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/dfa"
 )
 
-func Replacex_index(outerKey string, innerkey string, tabla Table) {
+func ReplaceX_index(outerKey string, innerkey string, tabla Table) {
 	for i := 0; i < len(tabla.Table_2D); i++ {
 		for e := 0; e < len(tabla.Table_2D[i]); e++ {
 			if tabla.Table_2D[i][e] == outerKey || tabla.Table_2D[i][e] == innerkey {
@@ -14,32 +12,32 @@ func Replacex_index(outerKey string, innerkey string, tabla Table) {
 			}
 		}
 	}
-	for i := 0; i < len(tabla.x_index); i++ {
-		if tabla.x_index[i] == outerKey || tabla.x_index[i] == innerkey {
-			tabla.x_index[i] = (innerkey + outerKey)
+	for i := 0; i < len(tabla.X_index); i++ {
+		if tabla.X_index[i] == outerKey || tabla.X_index[i] == innerkey {
+			tabla.X_index[i] = (innerkey + outerKey)
 		}
 	}
 }
 
 // Al momento de conseguir un pdf se pasa todos los valores a una tabla donde tenemos:
 // Tabla nxn: A donde se dirige el estado
-// y_index: Las lista de transiciones
-// x_index: Los estados que tienen
+// Y_index: Las lista de transiciones
+// X_index: Los estados que tienen
 //Finals: verificar si es un estado estado final o no
 
-func Initialize_Tabla_a_ADF(ADF dfa.DFA) Table {
+func Initialize_Tabla_a_ADF(ADF *dfa.DFA) Table {
 
 	lista := [][]string{}
-	yy_index := make(map[string]bool)
+	yY_index := make(map[string]bool)
 	states := make(map[string]bool)
-	xx_index_list := []string{}
-	yy_index_list := []string{}
+	xX_index_list := []string{}
+	yY_index_list := []string{}
 
 	var provisional_list []string
 	lista = append(lista, []string{})
 	for symbol, state := range ADF.StartState.Transitions {
 		provisional_list = append(provisional_list, state.Id)
-		yy_index[symbol] = true
+		yY_index[symbol] = true
 
 	}
 	lista[0] = append(lista[0], provisional_list...)
@@ -51,14 +49,12 @@ func Initialize_Tabla_a_ADF(ADF dfa.DFA) Table {
 	}
 
 	for _, state := range ADF.States {
-
 		// OJO En el caso de que nuestro algoritmo
 		if state.Id != ADF.StartState.Id {
-
 			provisional_list = []string{}
 			for symbol, state := range state.Transitions {
 				provisional_list = append(provisional_list, state.Id)
-				yy_index[symbol] = true
+				yY_index[symbol] = true
 				if state.IsFinal {
 					states[state.Id] = true
 				} else {
@@ -66,31 +62,30 @@ func Initialize_Tabla_a_ADF(ADF dfa.DFA) Table {
 				}
 
 			}
-
 			lista = append(lista, provisional_list)
 		}
 
 	}
 
-	for Index := range yy_index {
-		yy_index_list = append(yy_index_list, Index)
-	}
-	for Index := range states {
-		xx_index_list = append(yy_index_list, Index)
+	for Index := range yY_index {
+		yY_index_list = append(yY_index_list, Index)
 	}
 
-	fmt.Println(states)
+	for _, Index := range ADF.States {
+		xX_index_list = append(xX_index_list, Index.Id)
+	}
 
 	return Table{
 		Table_2D: lista,
-		x_index:  xx_index_list,
-		y_index:  yy_index_list,
-		finals:   states,
+		X_index:  xX_index_list,
+		Y_index:  yY_index_list,
+		Finals:   states,
+		Initial:  ADF.StartState.Id,
 	}
 
 }
 
-func Lista_a_marcar_antes_finals(mappings map[string]map[string]bool) []Tuple {
+func Lista_a_marcar_antes_Finals(mappings map[string]map[string]bool) []Tuple {
 
 	var tuples []Tuple
 
@@ -104,7 +99,7 @@ func Lista_a_marcar_antes_finals(mappings map[string]map[string]bool) []Tuple {
 	return tuples
 }
 
-func NewState(id string, isFinal bool, estado dfa.State) dfa.State {
+func NewState(id string, isFinal bool) dfa.State {
 	return dfa.State{
 		Id:          id,
 		IsFinal:     isFinal,
@@ -116,15 +111,14 @@ func Recorrer_x_tupla(tuplas []Tuple, tabla Table, mappings map[string]map[strin
 	var newTuplesAdded bool
 	var initialLength = len(tuplas)
 
-	for s := 0; s < len(tabla.y_index); s++ {
+	for s := 0; s < len(tabla.Y_index); s++ {
 
 		for d := 0; d < len(tabla.Table_2D)-1; d++ {
 			for k := d + 1; k < len(tabla.Table_2D); k++ {
 				tuple := Tuple{OuterKey: tabla.Table_2D[d][s], InnerKey: tabla.Table_2D[k][s]}
 				if TupleExists(tuplas, tuple) {
-					mappings[tabla.x_index[d]][tabla.x_index[k]] = true
+					mappings[tabla.X_index[d]][tabla.X_index[k]] = true
 				}
-
 			}
 		}
 	}
@@ -151,22 +145,23 @@ func TupleExists(tuples []Tuple, target Tuple) bool {
 func Initilize_table(table Table) map[string]map[string]bool {
 	var contador = 0
 	tabla := make(map[string]map[string]bool)
-	for i := range len(table.x_index) - 1 {
+	for i := range len(table.X_index) - 1 {
 
-		tabla[table.x_index[i]] = make(map[string]bool)
+		//Genera por cada estado una transicion
+		tabla[table.X_index[i]] = make(map[string]bool)
 		//Agregar un if que si es mayor al contador
 
-		for e := len(table.x_index) - 1; e >= 1; e-- {
+		for e := len(table.X_index) - 1; e >= 1; e-- {
 
 			if 0 < e-contador {
-				tabla[table.x_index[i]][table.x_index[e]] = false
+				tabla[table.X_index[i]][table.X_index[e]] = false
 				//Este es llenar si son estados finales con true
-				if !(table.finals[table.x_index[i]] && table.finals[table.x_index[e]]) {
-					if table.finals[table.x_index[i]] {
-						tabla[table.x_index[i]][table.x_index[e]] = true
+				if !(table.Finals[table.X_index[i]] && table.Finals[table.X_index[e]]) {
+					if table.Finals[table.X_index[i]] {
+						tabla[table.X_index[i]][table.X_index[e]] = true
 					}
-					if table.finals[table.x_index[e]] {
-						tabla[table.x_index[i]][table.x_index[e]] = true
+					if table.Finals[table.X_index[e]] {
+						tabla[table.X_index[i]][table.X_index[e]] = true
 					}
 				}
 
@@ -179,3 +174,75 @@ func Initilize_table(table Table) map[string]map[string]bool {
 }
 
 //Hacer otra funcion para revisar si en la minimizacion se cambio el estado inicial
+
+func Initialize_DFA_minimizado(tabla *Table) dfa.DFA {
+
+	estados := []dfa.State{}
+	transitions := map[string]int{}
+	var inital int
+
+	// Agrega todos los estados del x index
+	for index, value := range tabla.X_index {
+		estado := NewState(value, tabla.Finals[value])
+		estados = append(estados, estado)
+		transitions[value] = index
+
+		if tabla.Initial == value {
+			inital = index
+		}
+	}
+
+	//Para cada uno de los estado
+	for index, value := range estados {
+		//Hay una transicion de cada y index
+		for i := range len(tabla.Y_index) {
+			value.Transitions[tabla.Y_index[i]] = estados[transitions[tabla.Table_2D[index][i]]]
+		}
+	}
+
+	return dfa.DFA{
+		StartState: estados[inital],
+		States:     estados,
+	}
+
+}
+
+func No_duplicates(tabla *Table) {
+	seen := make(map[string]bool)
+	unique := []string{}
+	newMatrix := [][]string{}
+
+	for index, i := range tabla.X_index {
+		if !seen[i] {
+			seen[i] = true
+			unique = append(unique, i)
+			newMatrix = append(newMatrix, tabla.Table_2D[index]) // Keep corresponding row
+		}
+	}
+
+	// Update tabla with unique X_index and corresponding matrix rows
+	tabla.X_index = unique
+	tabla.Table_2D = newMatrix
+}
+
+func Showvalores_tabla(table Table) {
+	println("Index in X")
+	for f := 0; f < len(table.X_index); f++ {
+		print(" ", table.X_index[f])
+	}
+	println()
+	println("Index in Y")
+	for f := 0; f < len(table.Y_index); f++ {
+		print(" ", table.Y_index[f])
+	}
+	println()
+
+	//Ver si esta bien
+	for i := 0; i < len(table.Table_2D); i++ {
+		for e := 0; e < len(table.Table_2D[e]); e++ {
+			print("	" + table.Table_2D[i][e] + " 	")
+		}
+		println()
+	}
+
+}

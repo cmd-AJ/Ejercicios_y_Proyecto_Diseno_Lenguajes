@@ -4,9 +4,9 @@ type Symbol = string
 
 type Table struct {
 	Table_2D [][]string
-	y_index  []string
-	x_index  []string
-	finals   map[string]bool
+	Y_index  []string
+	X_index  []string
+	Finals   map[string]bool
 	Initial  string
 }
 
