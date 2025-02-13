@@ -30,10 +30,7 @@ func main() {
 
 		//Posibilidades
 		var tuplas = min.Lista_a_marcar_antes_Finals(tablucha)
-		fmt.Println(tablucha) //Ya esta
-		fmt.Println(tuplas)   //Ya esta
 
-		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
 		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
 		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
 
@@ -41,12 +38,13 @@ func main() {
 			// Iterate over the inner map
 			for innerKey := range innerMap {
 				// Print the outer key, inner key, and value
-				fmt.Println(innerMap)
 				if innerMap[innerKey] == false {
 					min.ReplaceX_index(outerKey, innerKey, table)
 				}
 			}
 		}
+
+		fmt.Println(tablucha) //Ya esta
 
 		min.No_duplicates(&table)
 

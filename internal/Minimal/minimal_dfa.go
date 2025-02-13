@@ -2,6 +2,8 @@ package Minimal
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
 
 	"github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/dfa"
 )
@@ -77,6 +79,13 @@ func Initialize_Tabla_a_ADF(ADF *dfa.DFA) Table {
 		xX_index_list = append(xX_index_list, Index.Id)
 	}
 
+	// Correct way to sort numerically
+	sort.Slice(xX_index_list, func(i, j int) bool {
+		num1, _ := strconv.Atoi(xX_index_list[i])
+		num2, _ := strconv.Atoi(xX_index_list[j])
+		return num1 < num2 // Sort in custom order
+	})
+
 	return Table{
 		Table_2D: lista,
 		X_index:  xX_index_list,
@@ -114,29 +123,53 @@ func NewState(id string, isFinal bool) dfa.State {
 }
 
 func Recorrer_x_tupla(tuplas []Tuple, tabla Table, mappings map[string]map[string]bool) []Tuple {
-	for s := 0; s < len(tabla.Y_index); s++ { // Iterate over columns
-		for d := 0; d < len(tabla.Table_2D)-1; d++ { // Iterate over rows
-			for k := d + 1; k < len(tabla.Table_2D); k++ { // Compare with next row
-				// Create a tuple using values from Table_2D
-				tuple := Tuple{OuterKey: tabla.Table_2D[d][s], InnerKey: tabla.Table_2D[k][s]}
+	// Store the initial length of tuplas
+	tuplas_before := len(tuplas)
 
-				// If this tuple exists in tuplas
-				if TupleExists(tuplas, tuple) {
-					// Create a new tuple using tabla.X_index values instead of Table_2D
-					newTuple := Tuple{OuterKey: tabla.X_index[d], InnerKey: tabla.X_index[k]}
+	// Iterate until no new tuples are added
+	for {
+		// Iterate over the columns and rows
+		for s := 0; s < len(tabla.Y_index); s++ { // Iterate over columns
+			for d := 0; d < len(tabla.Table_2D)-1; d++ { // Iterate over rows
+				for k := d + 1; k < len(tabla.Table_2D); k++ { // Compare with next row
+					// Create a tuple using values from Table_2D
+					tuple := NormalizeTuple(Tuple{OuterKey: tabla.Table_2D[d][s], InnerKey: tabla.Table_2D[k][s]})
 
-					// Ensure the new tuple is unique before adding
-					if !TupleExists(tuplas, newTuple) {
-						tuplas = append(tuplas, newTuple)
+					// If this tuple exists in tuplas
+					if TupleExists(tuplas, tuple) {
 
-						// Ensure mappings[d] is initialized
-						if mappings[tabla.X_index[d]] == nil {
-							mappings[tabla.X_index[d]] = make(map[string]bool)
+						// Create a new tuple using tabla.X_index values instead of Table_2D
+						newTuple := NormalizeTuple(Tuple{OuterKey: tabla.X_index[d], InnerKey: tabla.X_index[k]})
+
+						// Ensure the new tuple is unique before adding
+						if !TupleExists(tuplas, newTuple) {
+
+							tuplas = append(tuplas, newTuple)
+
+							// Ensure mappings[d] is initialized
+							if mappings[tabla.X_index[d]] == nil {
+								mappings[tabla.X_index[d]] = make(map[string]bool)
+							}
+
+							// Check if the key exists before accessing
+							if tabla.X_index[k] != "" {
+								mappings[tabla.X_index[d]][tabla.X_index[k]] = true
+							} else {
+
+							}
 						}
-						mappings[tabla.X_index[d]][tabla.X_index[k]] = true
 					}
 				}
 			}
+		}
+
+		// Check if the length of tuplas increased; if yes, iterate again
+		if len(tuplas) > tuplas_before {
+			// Recurse with the updated tuplas
+			return Recorrer_x_tupla(tuplas, tabla, mappings)
+		} else {
+			// If no new tuples were added, break out of the loop
+			break
 		}
 	}
 
@@ -145,21 +178,28 @@ func Recorrer_x_tupla(tuplas []Tuple, tabla Table, mappings map[string]map[strin
 }
 
 // Function to check if a tuple exists (ignoring order)
-func TupleExists(tuples []Tuple, target Tuple) bool {
-	for _, t := range tuples {
-		if (t.OuterKey == target.OuterKey && t.InnerKey == target.InnerKey) ||
-			(t.OuterKey == target.InnerKey && t.InnerKey == target.OuterKey) {
+func TupleExists(tuplas []Tuple, t Tuple) bool {
+	normalized := NormalizeTuple(t)
+	for _, existing := range tuplas {
+		if NormalizeTuple(existing) == normalized {
 			return true
 		}
 	}
 	return false
 }
 
+func NormalizeTuple(t Tuple) Tuple {
+	if t.OuterKey > t.InnerKey { // Ensure (smaller, larger) order
+		return Tuple{OuterKey: t.InnerKey, InnerKey: t.OuterKey}
+	}
+	return t
+}
+
 // Debe llenar LLenar la tabla de espacios vacios
 func Initilize_table(table Table) map[string]map[string]bool {
 	var contador = 0
 	tabla := make(map[string]map[string]bool)
-	for i := range len(table.X_index) - 1 {
+	for i := range table.X_index {
 
 		//Genera por cada estado una transicion
 		tabla[table.X_index[i]] = make(map[string]bool)
