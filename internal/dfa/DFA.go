@@ -337,7 +337,7 @@ func findFinalSymbols(expresion []postfix.Symbol) []string {
 	symbolsSet := make(map[postfix.Symbol]bool)
 
 	for _, symbol := range expresion {
-		if !symbol.IsOperator {
+		if !symbol.IsOperator && symbol.Value != "ε" {
 			if _, exist := symbolsSet[symbol]; !exist {
 				symbolsSet[symbol] = true
 			}
