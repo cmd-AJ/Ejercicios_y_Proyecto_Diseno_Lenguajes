@@ -33,33 +33,20 @@ func main() {
 		fmt.Println(tablucha) //Ya esta
 		fmt.Println(tuplas)   //Ya esta
 
-		for _, values := range table.Table_2D {
-			fmt.Println(values)
-		}
-
-		for _, values := range tuplas {
-			fmt.Println(values)
-		}
-
 		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
-		//Recorrer solo una vez para verificar si no hubo algo faltante
 		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
-
-		for _, tuple := range tuplas {
-			tablucha[tuple.OuterKey][tuple.InnerKey] = true
-		}
+		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
 
 		for outerKey, innerMap := range tablucha {
 			// Iterate over the inner map
 			for innerKey := range innerMap {
 				// Print the outer key, inner key, and value
+				fmt.Println(innerMap)
 				if innerMap[innerKey] == false {
 					min.ReplaceX_index(outerKey, innerKey, table)
 				}
 			}
 		}
-
-		fmt.Println(tablucha)
 
 		min.No_duplicates(&table)
 

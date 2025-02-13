@@ -1,6 +1,8 @@
 package Minimal
 
 import (
+	"fmt"
+
 	"github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/internal/dfa"
 )
 
@@ -90,10 +92,14 @@ func Lista_a_marcar_antes_Finals(mappings map[string]map[string]bool) []Tuple {
 	var tuples []Tuple
 
 	for outerKey, innerMap := range mappings {
+
 		for innerKey := range innerMap {
-			tuple := Tuple{OuterKey: outerKey, InnerKey: innerKey}
-			tuples = append(tuples, tuple)
+			if mappings[outerKey][innerKey] {
+				tuple := Tuple{OuterKey: outerKey, InnerKey: innerKey}
+				tuples = append(tuples, tuple)
+			}
 		}
+
 	}
 
 	return tuples
@@ -108,33 +114,41 @@ func NewState(id string, isFinal bool) dfa.State {
 }
 
 func Recorrer_x_tupla(tuplas []Tuple, tabla Table, mappings map[string]map[string]bool) []Tuple {
-	var newTuplesAdded bool
-	var initialLength = len(tuplas)
-
-	for s := 0; s < len(tabla.Y_index); s++ {
-
-		for d := 0; d < len(tabla.Table_2D)-1; d++ {
-			for k := d + 1; k < len(tabla.Table_2D); k++ {
+	for s := 0; s < len(tabla.Y_index); s++ { // Iterate over columns
+		for d := 0; d < len(tabla.Table_2D)-1; d++ { // Iterate over rows
+			for k := d + 1; k < len(tabla.Table_2D); k++ { // Compare with next row
+				// Create a tuple using values from Table_2D
 				tuple := Tuple{OuterKey: tabla.Table_2D[d][s], InnerKey: tabla.Table_2D[k][s]}
+
+				// If this tuple exists in tuplas
 				if TupleExists(tuplas, tuple) {
-					mappings[tabla.X_index[d]][tabla.X_index[k]] = true
+					// Create a new tuple using tabla.X_index values instead of Table_2D
+					newTuple := Tuple{OuterKey: tabla.X_index[d], InnerKey: tabla.X_index[k]}
+
+					// Ensure the new tuple is unique before adding
+					if !TupleExists(tuplas, newTuple) {
+						tuplas = append(tuplas, newTuple)
+
+						// Ensure mappings[d] is initialized
+						if mappings[tabla.X_index[d]] == nil {
+							mappings[tabla.X_index[d]] = make(map[string]bool)
+						}
+						mappings[tabla.X_index[d]][tabla.X_index[k]] = true
+					}
 				}
 			}
 		}
 	}
-	if newTuplesAdded && len(tuplas) > initialLength {
-		Recorrer_x_tupla(tuplas, tabla, mappings)
 
-		return tuplas
-	}
-
+	fmt.Println("Final tuples:", tuplas) // Debug print for final list
 	return tuplas
-
 }
 
+// Function to check if a tuple exists (ignoring order)
 func TupleExists(tuples []Tuple, target Tuple) bool {
 	for _, t := range tuples {
-		if t == target {
+		if (t.OuterKey == target.OuterKey && t.InnerKey == target.InnerKey) ||
+			(t.OuterKey == target.InnerKey && t.InnerKey == target.OuterKey) {
 			return true
 		}
 	}

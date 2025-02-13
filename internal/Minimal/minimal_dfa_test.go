@@ -76,10 +76,6 @@ func Test_checkgraph(t *testing.T) {
 	//Recorrer solo una vez para verificar si no hubo algo faltante
 	tuplas = Recorrer_x_tupla(tuplas, table, tablucha)
 
-	for _, tuple := range tuplas {
-		tablucha[tuple.OuterKey][tuple.InnerKey] = true
-	}
-
 	for outerKey, innerMap := range tablucha {
 		// Iterate over the inner map
 		for innerKey := range innerMap {
