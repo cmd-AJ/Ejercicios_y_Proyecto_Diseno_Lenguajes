@@ -1,11 +1,9 @@
 package postfix
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/golang-collections/collections/stack"
-	"github.com/rs/zerolog/log"
 )
 
 // Converts a regex string to a slice of symbols in postfix
@@ -41,7 +39,7 @@ func shuntingyard(tokens []Symbol) []Symbol {
 	postfix := make([]Symbol, 0)
 	stack := stack.New()
 
-	for i, token := range tokens {
+	for _, token := range tokens {
 		if token.Value == "(" && token.IsOperator {
 			stack.Push(token)
 		} else if token.Value == ")" && token.IsOperator {
@@ -68,9 +66,9 @@ func shuntingyard(tokens []Symbol) []Symbol {
 			stack.Push(token)
 		}
 
-		log.Debug().Msg(fmt.Sprintf("\t=== STEP %d ====\n", i))
-		log.Debug().Msg(fmt.Sprintf("\t\tStack: %+v \n", (tokens)[0:i+1]))
-		log.Debug().Msg(fmt.Sprintf("\t\tResponse: %+v \n", postfix))
+		// log.Debug().Msg(fmt.Sprintf("\t=== STEP %d ====\n", i))
+		// log.Debug().Msg(fmt.Sprintf("\t\tStack: %+v \n", (tokens)[0:i+1]))
+		// log.Debug().Msg(fmt.Sprintf("\t\tResponse: %+v \n", postfix))
 	}
 
 	for stack.Len() > 0 {
