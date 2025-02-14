@@ -39,14 +39,14 @@ Correr los comandos
 
 
 ## Categorias del Proyecto
-*[Balanceador]([https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/balancer])
+*[Balanceador](https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/balancer)
  - proporciona una implementación para determinar si una expresión regular está balanceada (contiene tanto los caracteres/simbolos de apertura como de cerradura).
-*[Regex a Postfix]([https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/Postfix])
+*[Regex a Postfix](https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/Postfix)
 - Convierte a una cadena regex a un array o slice en caso de GO de simbolos a postfix con el algoritmo de Shunting Yard.
 - Construye un AST a partir de una lista de símbolos en notación postfix.
-*[AFD]([https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/dfa])
+*[AFD](https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/dfa)
 -Construccion de un automata a partir de una expresión Regex
-*[AFD Minimizado]([https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/Minimal])
+*[AFD Minimizado](https://github.com/cmd-AJ/Ejercicios_y_Proyecto_Diseno_Lenguajes/tree/main/internal/Minimal)
 - Realiza el algoritmo de minimización de AFD, solo reduce los estados en el AFD si es que hay.
 
 
