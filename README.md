@@ -33,9 +33,11 @@ Una vez que todas las dependencias estén instaladas, puedes proceder con la con
 Construir el Proyecto
 
 Correr los comandos
-
-  task build: Para construir el proyecto
-  task run: Para correr el proyecto
+```bash
+task build      ## Para construir el proyecto
+task run        ## Para correr el proyecto
+```
+ 
 
 
 ## Categorias del Proyecto
