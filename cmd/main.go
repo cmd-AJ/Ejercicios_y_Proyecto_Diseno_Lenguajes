@@ -45,33 +45,23 @@ func main() {
 		dfa.RenderDFA(testDFA, "adf_no_iniciado.png")
 
 		table := min.Initialize_Tabla_a_ADF(testDFA)
-		var tablucha = min.Initilize_table(table)
-
-		// Posibilidades
-		var tuplas = min.Lista_a_marcar_antes_Finals(tablucha)
-		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
-		tuplas = min.Recorrer_x_tupla(tuplas, table, tablucha)
-
-		for outerKey, innerMap := range tablucha {
-			for innerKey := range innerMap {
-				if innerMap[innerKey] == false {
-					min.ReplaceX_index(outerKey, innerKey, table)
-				}
-			}
+		mapeo := min.Crear_Tabla_minimizar(table)
+		for i := 0; i < len(table.Table_2D); i++ {
+			mapeo = min.Tuplas_a_sacar(mapeo, table)
 		}
+		afd := min.Revisar_reemplazar(mapeo, *testDFA)
+
+		dfa.RenderDFA(&afd, "ADF_MIN.png")
 
 		fmt.Println(success("🔎 Estado de la tabla después de la minimización:"))
-		fmt.Println(tablucha)
-
-		min.No_duplicates(&table)
-		dfa_minimizado := min.Initialize_DFA_minimizado(&table)
-		dfa.RenderDFA(&dfa_minimizado, "DFA_Minimizado.png")
 
 		fmt.Println(success("🎉 AFD minimizado generado con éxito y guardado como 'DFA_Minimizado.png'"))
 		fmt.Println(info("📥 Cadena ingresada para validación: "), testString)
 
 		acceptedByInitialDFA := simulate_regex.SimulateDFA(testDFA, testString)
-		acceptedByMinimizedDFA := simulate_regex.SimulateDFA(&dfa_minimizado, testString)
+
+		//AREGLAR PARA MINIMIZAR
+		acceptedByMinimizedDFA := simulate_regex.SimulateDFA(&afd, testString)
 
 		if acceptedByInitialDFA {
 			fmt.Println(success("🎉 CADENA ACEPTADA por automata ORIGINAL"))

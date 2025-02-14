@@ -3,11 +3,15 @@ package Minimal
 type Symbol = string
 
 type Table struct {
-	Table_2D [][]string
-	Y_index  []string
-	X_index  []string
-	Finals   map[string]bool
-	Initial  string
+	//primero es x luego y luego valor celda
+	Table_2D map[string]map[string]string
+	// dimension integer y
+	Y_index int
+	X_index int
+	//estados que son finales
+	Finals map[string]bool
+	//Estado que se inicia
+	Initial string
 }
 
 type Tuple struct {
