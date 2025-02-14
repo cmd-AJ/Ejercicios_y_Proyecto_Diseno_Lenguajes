@@ -61,10 +61,10 @@ Resultados de una de las cadenas de prueba
 #### Resultados de prueba
 ![lab1sis](https://github.com/user-attachments/assets/27a147bb-bba2-46a0-8139-727df509f482)
 
-Automata
+#### Automata 
 ![image](https://github.com/user-attachments/assets/9c771fc0-dd82-4971-bb09-b4e8be93bd12)
 
-Atuomata Minimizado
+#### Atuomata Minimizado
 ![image](https://github.com/user-attachments/assets/fea3d976-523a-4610-8f4b-a3b287eba79c)
 
 
