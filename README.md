@@ -1,8 +1,5 @@
 # Ejercicios_y_Proyecto_Diseno_Lenguajes
 
-
-# Ejercicios_y_Proyecto_Diseno_Lenguajes
-
 ## Este proyecto tiene como objetivo la implementación de algoritmos para trabajar con autómatas finitos, conversion de expresiones regulares, incluyendo la generación de autómatas, su simulación, y la verificación de pertenencia de cadenas al lenguaje descrito por una expresión regular.
 
 
