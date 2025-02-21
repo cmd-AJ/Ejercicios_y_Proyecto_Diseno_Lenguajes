@@ -114,22 +114,28 @@ func Tuplas_a_sacar(mapeo map[string]map[string]bool, tabla Table) map[string]ma
 
 	return mapeo
 }
-
 func Revisar_reemplazar(mapeo map[string]map[string]bool, adf dfa.DFA) dfa.DFA {
 	for key, value := range mapeo {
 		for key_2, value := range value {
 			if !value {
-
+				//quita el estado que no se quiere
 				if key == adf.StartState.Id || key_2 == adf.StartState.Id {
 					adf.StartState.Id = key + key_2
 				} else {
-					for _, estados := range adf.States {
-						if key == estados.Id || key_2 == estados.Id {
-							adf.StartState.Id = key + key_2
+
+					for _, state := range adf.States {
+						for simbolo, final_state := range state.Transitions {
+							if final_state.Id == key_2 || final_state.Id == key {
+								keyput, _ := strconv.Atoi(key)
+								state.Transitions[simbolo] = adf.States[keyput]
+							}
 						}
 					}
 
 				}
+				keyint, _ := strconv.Atoi(key_2)
+
+				adf.States = append(adf.States[:keyint], adf.States[keyint+1:]...)
 			}
 		}
 
@@ -137,37 +143,3 @@ func Revisar_reemplazar(mapeo map[string]map[string]bool, adf dfa.DFA) dfa.DFA {
 	return adf
 
 }
-
-// func Initialize_DFA_minimizado(tabla *Table) dfa.DFA {
-
-// 	estados := []dfa.State{}
-// 	transitions := map[string]int{}
-// 	var inital int
-
-// 	// Agrega todos los estados del x index
-// 	for index, value := range tabla.X_index {
-// 		estado := NewState(value, tabla.Finals[value])
-// 		estados = append(estados, estado)
-// 		transitions[value] = index
-
-// 		if tabla.Initial == value {
-// 			inital = index
-// 		}
-// 	}
-
-// 	//Para cada uno de los estado
-// 	for index, value := range estados {
-// 		//Hay una transicion de cada y index
-// 		for i := range len(tabla.Y_index) {
-// 			value.Transitions[tabla.Y_index[i]] = estados[transitions[tabla.Table_2D[index][i]]]
-// 		}
-// 	}
-
-// 	return dfa.DFA{
-// 		StartState: estados[inital],
-// 		States:     estados,
-// 	}
-
-// }
-
-//Hacer otra funcion para revisar si en la minimizacion se cambio el estado inicial
